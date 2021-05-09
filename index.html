@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Pomiary prędkości wiatru</title>
+   </head>
+
+   <body style="background-image:  url('https://swiatlolux.pl/media/wysiwyg/zdj_cie_1_-_gdzie_postawi_elektrowni_.jpg');background-size: cover;"> 
+      <div style="height: auto;width: 20%;color:black;border-style: solid;float:left">
+        <div class="container">
+         <div class="inbox">
+           <div class="inbox__people">
+            <h4>Aktywni uzytkownicy: </h4>
+                </div>
+              </div>
+            </div>
+         </div>
+
+      <div> Pomiary predkosci wiatru: </div>
+      <div id="display" style="float:left;background-color: rgb(139, 132, 145);height: auto;width: 70%;border-style: dotted;">
+         <ul id="message"></ul>
+      </div>
+          
+      <script src = "/socket.io/socket.io.js"></script>
+
+        <script>
+            var socket = io();
+            socket.on('testerEvent', function(data){
+            var wiadomosc  = document.createElement("li");
+            wiadomosc.innerHTML=data;
+            document.getElementById("message").appendChild(wiadomosc)
+            });   
+        </script>
+
+
+<script>
+  const inboxPeople = document.querySelector(".inbox__people");
+
+  let userName = "";
+
+  const newUserConnected = (user) => {
+  userName = user || `User${Math.floor(Math.random() * 100)}`; 
+  socket.emit("new user", userName);
+  addToUsersBox(userName);
+  };
+
+  const addToUsersBox = (userName) => {
+  if (!!document.querySelector(`.${userName}-userlist`)) {
+    return;
+  }
+
+  const userBox = `
+    <div class="chat_ib ${userName}-userlist">
+      <h5>${userName}</h5>
+    </div>
+  `;
+  inboxPeople.innerHTML += userBox;
+};
+
+
+  newUserConnected();
+  socket.on("new user", function (data) {
+  data.map((user) => addToUsersBox(user));
+  });
+
+  socket.on("user disconnected", function (userName) {
+  document.querySelector(`.${userName}-userlist`).remove();
+  });
+</script>
+
+</body>
+</html>
